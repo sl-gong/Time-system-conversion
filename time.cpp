@@ -100,15 +100,17 @@ void GPSTimeToJulianDay(PGPSTIME pgt, PJULIANDAY pjd)//GPS时到儒略日的转�
 }
 void CommonTimeToGPSTime(PCOMMONTIME pct, PGPSTIME pgt)//通用时到GPS时的转换
 {
-	PJULIANDAY pjd = new JULIANDAY;
-	CommonTimeToJulianDay(pct, pjd);
+	PJULIANDAY pjd;
+	CommonTimeToJulianDay(pct, &pjd);
 	JulianDayToGPSTime(pjd, pgt);
+	delete pjd;
 }
 void GPSTimeToCommonTime(PGPSTIME pgt, PCOMMONTIME pct)//GPS时到通用时的转换
 {
 	PJULIANDAY pjd = new JULIANDAY;
 	GPSTimeToJulianDay(pgt, pjd);
 	JulianDayToCommonTime(pjd, pct);
+	delete pjd;
 }
 void CommonTimeToDOY(PCOMMONTIME pct, PDOY pdoy)
 {
@@ -138,6 +140,9 @@ void CommonTimeToDOY(PCOMMONTIME pct, PDOY pdoy)
 		+ pct->minute * 60 + pct->second);
 	pdoy->tod.tos = pct->second - int(pct->second);    /*pct->hour*3600
 													   +pct->minute*60+pct->second-pdoy->tod.sn;*/
+	delete pcto;
+	delete pjdo;
+	delete pjd;
 }
 void DOYToCommonTime(PDOY pdoy, PCOMMONTIME pct)
 {
@@ -167,31 +172,33 @@ void DOYToCommonTime(PDOY pdoy, PCOMMONTIME pct)
 		- pct->hour * 3600) / 60);
 	pct->second = pdoy->tod.sn + pdoy->tod.tos
 		- pct->hour * 3600 - pct->minute * 60;
+	delete pcto;
+	delete pjdo;
 }
 void GPSTimeToDOY(PGPSTIME pgt, PDOY pdoy)
 {
-	PJULIANDAY pjd = new JULIANDAY;
-	GPSTimeToJulianDay(pgt, pjd);
-	PCOMMONTIME pct = new COMMONTIME;
-	JulianDayToCommonTime(pjd, pct);
+	PJULIANDAY pjd;
+	GPSTimeToJulianDay(pgt, &pjd);
+	PCOMMONTIME pct;
+	JulianDayToCommonTime(pjd, &pct);
 	CommonTimeToDOY(pct, pdoy);
 }
 void DOYToGPSTime(PDOY pdoy, PGPSTIME pgt)
 {
-	PCOMMONTIME pct = new COMMONTIME;
-	DOYToCommonTime(pdoy, pct);
+	PCOMMONTIME pct;
+	DOYToCommonTime(pdoy, &pct);
 	CommonTimeToGPSTime(pct, pgt);
 }
 void JulianDayToDOY(PJULIANDAY pjd, PDOY pdoy)
 {
-	PCOMMONTIME pct = new COMMONTIME;
-	JulianDayToCommonTime(pjd, pct);
+	PCOMMONTIME pct;
+	JulianDayToCommonTime(pjd, &pct);
 	CommonTimeToDOY(pct, pdoy);
 }
 void DOYToJulianDay(PDOY pdoy, PJULIANDAY pjd)
 {
-	PCOMMONTIME pct = new COMMONTIME;
-	DOYToCommonTime(pdoy, pct);
+	PCOMMONTIME pct;
+	DOYToCommonTime(pdoy, &pct);
 	CommonTimeToJulianDay(pct, pjd);
 }
 void main()
@@ -260,4 +267,8 @@ void main()
 	cout << "经过各种转换后还原得到的通用时:";
 	cout << pct->year << " " << pct->month << " " << pct->day << " " << pct->hour << ":" << pct->minute << ":" << pct->second << endl;
 	cout << endl;
+	delete pct;
+	delete pjd;
+	delete pdoy;
+	delete pgt;
 }
